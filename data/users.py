@@ -17,7 +17,7 @@ class User(SqlAlchemyBase, UserMixin):
     address = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.Integer, default=None)
     email = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, unique=True)
-    modified_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
+    created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
