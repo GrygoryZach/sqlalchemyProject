@@ -101,8 +101,9 @@ def add_job():
             is_finished=form.is_finished.data
         )
         print(current_user.name)
-        current_user.job.append(job)
-        db_sess.merge(current_user)
+        # current_user.job.append(job)
+        # db_sess.merge(current_user)
+        db_sess.add(job)
         db_sess.commit()
         return redirect('/')
     return render_template('job.html', title='Добавление новости', form=form)
@@ -117,7 +118,6 @@ def edit_job(id):
         job = db_sess.query(Job).filter(Job.id == id).first()
         if job:
             form.job.data = job.job
-            form.team_leader_id.data = job.team_leader_id
             form.work_size.data = job.work_size
             form.collaborators.data = job.collaborators
             form.start_date.data = job.start_date
@@ -130,7 +130,7 @@ def edit_job(id):
         job = db_sess.query(Job).filter(Job.id == id).first()
         if job:
             job.job = form.job.data
-            job.team_leader_id = form.team_leader_id.data
+            job.team_leader_id = current_user.id
             job.work_size = form.work_size.data
             job.collaborators = form.collaborators.data
             job.start_date = form.start_date.data
