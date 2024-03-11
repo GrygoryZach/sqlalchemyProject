@@ -94,6 +94,7 @@ def add_job():
         db_sess = db_session.create_session()
         job = Job(
             job=form.job.data,
+            team_leader_id=current_user.id,
             work_size=form.work_size.data,
             collaborators=form.collaborators.data,
             start_date=form.start_date.data,
@@ -106,16 +107,19 @@ def add_job():
         db_sess.add(job)
         db_sess.commit()
         return redirect('/')
-    return render_template('job.html', title='Добавление новости', form=form)
+    return render_template('job.html', title='Добавление работы', form=form)
 
 
 @app.route('/job/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_job(id):
     form = JobForm()
+    access = True
     if request.method == "GET":
         db_sess = db_session.create_session()
         job = db_sess.query(Job).filter(Job.id == id).first()
+        if not (current_user.id == 1 or current_user.id == job.team_leader_id):
+            return redirect("/")
         if job:
             form.job.data = job.job
             form.work_size.data = job.work_size
@@ -130,7 +134,6 @@ def edit_job(id):
         job = db_sess.query(Job).filter(Job.id == id).first()
         if job:
             job.job = form.job.data
-            job.team_leader_id = current_user.id
             job.work_size = form.work_size.data
             job.collaborators = form.collaborators.data
             job.start_date = form.start_date.data
@@ -150,6 +153,8 @@ def edit_job(id):
 def job_delete(id):
     db_sess = db_session.create_session()
     job = db_sess.query(Job).filter(Job.id == id).first()
+    if not (current_user.id == 1 or current_user.id == job.team_leader_id):
+        return redirect('/')
     if job:
         db_sess.delete(job)
         db_sess.commit()
