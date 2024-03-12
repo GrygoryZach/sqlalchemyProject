@@ -1,11 +1,11 @@
-from flask import Flask, render_template, redirect, abort, request
+from flask import Flask, render_template, redirect, abort, request, make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from data import db_session
 from data.jobs import Job
 from forms.user import RegisterForm, LoginForm
 from forms.job import JobForm
 from data.users import User
 from datetime import datetime
+from data import db_session, jobs_api
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -16,9 +16,8 @@ login_manager.init_app(app)
 
 def main():
     db_session.global_init("db/mars_explorer.db")
-    db_sess = db_session.create_session()
-    db_sess.commit()
-    # app.run()
+    app.register_blueprint(jobs_api.blueprint)
+    app.run()
 
 
 @app.route("/")
@@ -163,6 +162,14 @@ def job_delete(id):
     return redirect('/')
 
 
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.errorhandler(400)
+def bad_request(_):
+    return make_response(jsonify({'error': 'Bad Request'}), 400)
 if __name__ == '__main__':
     main()
     app.run(port=8080, host='127.0.0.1')
